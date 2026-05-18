@@ -1,0 +1,49 @@
+USE game_ops;
+TRUNCATE TABLE login_log;
+TRUNCATE TABLE pay_log;
+
+INSERT INTO login_log (user_id, login_date, login_hour, duration_min)
+SELECT
+    u.user_id,
+    DATE_ADD(u.reg_date, INTERVAL offset_day DAY) AS login_date,
+    FLOOR(8 + RAND() * 12) AS login_hour,
+    FLOOR(15 + RAND() * 75) AS duration_min
+FROM user_info u
+CROSS JOIN (
+    -- 生成 0~29 共30个偏移量
+    SELECT a.N + b.N * 10 AS offset_day
+    FROM
+        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+         UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8 UNION SELECT 9) a,
+        (SELECT 0 AS N UNION SELECT 1 UNION SELECT 2) b
+    WHERE a.N + b.N * 10 < 30
+) offsets
+WHERE RAND() < CASE
+    WHEN DAYOFWEEK(DATE_ADD(u.reg_date, INTERVAL offsets.offset_day DAY)) IN (1,7)
+    THEN 0.85
+    ELSE 0.7
+END;
+SELECT COUNT(*) FROM login_log;
+-- 期望 40000~48000
+
+-- 首次付费：注册后0~29天内，小额
+INSERT INTO pay_log (user_id, pay_date, amount)
+SELECT
+    u.user_id,
+    DATE_ADD(u.reg_date, INTERVAL FLOOR(RAND() * 30) DAY),
+    ROUND(6 + RAND() * 24, 2)
+FROM user_info u
+WHERE RAND() < 0.15;
+
+-- 部分用户产生第2~4次付费
+INSERT INTO pay_log (user_id, pay_date, amount)
+SELECT
+    p.user_id,
+    DATE_ADD(p.pay_date, INTERVAL FLOOR(2 + RAND() * 10) DAY),
+    ROUND(30 + RAND() * 170, 2)
+FROM pay_log p
+WHERE RAND() < 0.5
+  AND (SELECT COUNT(*) FROM pay_log p2 WHERE p2.user_id = p.user_id) < 4;  -- 防止过多重复
+
+  SELECT COUNT(*), COUNT(DISTINCT user_id) FROM pay_log;
+-- 期望总记录数800~1200，付费用户数250~300
