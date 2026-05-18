@@ -1,0 +1,129 @@
+
+-- 查找同一用户同一天多次登录
+SELECT user_id, login_date, COUNT(*) AS cnt
+FROM login_log
+GROUP BY user_id, login_date
+HAVING cnt > 1;
+
+SELECT DISTINCT l.user_id
+FROM login_log l
+LEFT JOIN user_info u ON l.user_id = u.user_id
+WHERE u.user_id IS NULL;
+
+SELECT MAX(amount), MIN(amount), AVG(amount)
+FROM pay_log;
+
+SELECT login_date, COUNT(DISTINCT user_id) AS DAU
+FROM login_log
+GROUP BY login_date
+ORDER BY login_date;
+
+SELECT COUNT(DISTINCT user_id) AS MAU
+FROM login_log;
+
+
+SELECT
+    u.reg_date,
+    COUNT(DISTINCT u.user_id) AS new_users,
+    COUNT(DISTINCT l2.user_id) AS day1_retained,
+    ROUND(COUNT(DISTINCT l2.user_id) / COUNT(DISTINCT u.user_id) * 100, 2) AS day1_retention_rate
+FROM user_info u
+LEFT JOIN login_log l2
+    ON u.user_id = l2.user_id
+    AND l2.login_date = DATE_ADD(u.reg_date, INTERVAL 1 DAY)
+WHERE u.reg_date >= '2026-03-20'   -- 完整覆盖区间
+GROUP BY u.reg_date
+ORDER BY u.reg_date;
+
+SELECT
+    u.reg_date,
+    COUNT(DISTINCT u.user_id) AS new_users,
+    COUNT(DISTINCT l7.user_id) AS day7_retained,
+    ROUND(COUNT(DISTINCT l7.user_id) / COUNT(DISTINCT u.user_id) * 100, 2) AS day7_retention_rate
+FROM user_info u
+LEFT JOIN login_log l7
+    ON u.user_id = l7.user_id
+    AND l7.login_date = DATE_ADD(u.reg_date, INTERVAL 7 DAY)
+WHERE u.reg_date BETWEEN '2026-03-20' AND '2026-04-11'  -- 要预留7天窗口
+GROUP BY u.reg_date
+ORDER BY u.reg_date;
+
+
+-- ARPU = 总收入 / 活跃用户数
+SELECT
+    ROUND(SUM(p.amount) / COUNT(DISTINCT l.user_id), 2) AS ARPU
+FROM login_log l
+LEFT JOIN pay_log p ON l.user_id = p.user_id;
+-- 注意：这个查询将总收入除以总活跃用户，代表活跃用户的平均贡献。
+
+-- ARPPU = 总收入 / 付费用户数
+SELECT
+    ROUND(SUM(amount) / COUNT(DISTINCT user_id), 2) AS ARPPU
+FROM pay_log;
+
+
+    SELECT
+        l.login_date,
+        COUNT(DISTINCT l.user_id) AS DAU,
+        IFNULL(SUM(p.amount), 0) AS daily_revenue,
+        ROUND(IFNULL(SUM(p.amount), 0) / COUNT(DISTINCT l.user_id), 2) AS daily_ARPU
+    FROM login_log l
+    LEFT JOIN pay_log p ON l.user_id = p.user_id AND l.login_date = p.pay_date
+    GROUP BY l.login_date
+    ORDER BY l.login_date;
+
+
+SELECT
+    COUNT(DISTINCT p.user_id) AS paying_users,
+    COUNT(DISTINCT u.user_id) AS total_users,
+    ROUND(COUNT(DISTINCT p.user_id) / COUNT(DISTINCT u.user_id) * 100, 2) AS pay_rate
+FROM user_info u
+LEFT JOIN pay_log p ON u.user_id = p.user_id;
+
+SELECT
+    user_id,
+    SUM(amount) AS total_spend
+FROM pay_log
+GROUP BY user_id
+ORDER BY total_spend DESC
+LIMIT 10;
+
+-- 分渠道注册人数
+SELECT channel, COUNT(*) AS users
+FROM user_info
+GROUP BY channel;
+
+-- 分渠道次日留存率
+SELECT
+    u.channel,
+    COUNT(DISTINCT u.user_id) AS new_users,
+    COUNT(DISTINCT l2.user_id) AS day1_retained,
+    ROUND(COUNT(DISTINCT l2.user_id) / COUNT(DISTINCT u.user_id) * 100, 2) AS day1_retention
+FROM user_info u
+LEFT JOIN login_log l2
+    ON u.user_id = l2.user_id
+    AND l2.login_date = DATE_ADD(u.reg_date, INTERVAL 1 DAY)
+WHERE u.reg_date >= '2026-03-20'
+GROUP BY u.channel
+ORDER BY day1_retention DESC;
+
+SELECT
+    CASE
+        WHEN u.level <= 20 THEN '1-20级'
+        WHEN u.level <= 40 THEN '21-40级'
+        WHEN u.level <= 60 THEN '41-60级'
+        ELSE '60级以上'
+    END AS level_group,
+    COUNT(DISTINCT u.user_id) AS users,
+    COUNT(DISTINCT p.user_id) AS pay_users,
+    ROUND(COUNT(DISTINCT p.user_id) / COUNT(DISTINCT u.user_id) * 100, 2) AS pay_rate,
+    ROUND(IFNULL(SUM(p.amount), 0) / COUNT(DISTINCT u.user_id), 2) AS ARPU
+FROM user_info u
+LEFT JOIN pay_log p ON u.user_id = p.user_id
+GROUP BY level_group
+ORDER BY MIN(u.level);
+
+SELECT login_hour, COUNT(*) AS login_count
+FROM login_log
+GROUP BY login_hour
+ORDER BY login_hour;
