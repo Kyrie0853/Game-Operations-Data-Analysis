@@ -1,4 +1,5 @@
 # 手游运营数据分析实战（Game Operations Data Analysis）
+注：本项目为个人学习作品，数据均为模拟生成，不涉及任何公司真实数据。
 
 > 模拟真实游戏运营场景，通过 SQL + Excel 完成用户行为、留存、付费等多维度数据分析，输出运营优化建议。
 
@@ -34,3 +35,22 @@
 - 💰 ARPU 与 DAU 组合图
 
 ## 🗂️ 项目结构
+
+1. **Clone 仓库**
+   ```bash
+   git clone https://github.com/你的用户名/Game-Operations-Data-Analysis.git
+2.**导入 SQL 脚本**
+
+打开 MySQL 客户端（推荐 DataGrip）
+
+依次执行 sql/01_create_tables.sql → sql/02_insert_data.sql → sql/03_analysis_queries.sql 中的查询
+
+注意：数据生成脚本包含随机函数，每次执行结果会略有不同，符合真实业务分布即可。
+
+3.**导出数据到 Excel 进行可视化**
+
+将 03_analysis_queries.sql 中的关键查询结果导出为 CSV
+
+在 Excel 中通过数据透视表和图表功能制作可视化报告（参考 reports/ 中的 PDF）
+**📬 联系我**
+邮箱：553043978@QQ.COM
