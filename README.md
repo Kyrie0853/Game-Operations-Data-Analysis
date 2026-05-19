@@ -37,8 +37,7 @@
 ## 🗂️ 项目结构
 
 1. **Clone 仓库**
-   ```bash
-   git clone https://github.com/你的用户名/Game-Operations-Data-Analysis.git
+   git clone https://github.com/Kyrie0853/Game-Operations-Data-Analysis.git
 2.**导入 SQL 脚本**
 
 打开 MySQL 客户端（推荐 DataGrip）
