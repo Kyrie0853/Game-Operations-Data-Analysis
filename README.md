@@ -28,32 +28,22 @@
 - **用户活跃时段分析**：识别登录高峰，为活动推送提供时间参考
 - **等级与付费意愿关联**：发现 40 级以上用户 ARPU 是普通用户的 3 倍，为付费引导提供依据
 
-### 3. 数据可视化（Excel 产出）
-- 📈 DAU 趋势折线图
-- 📊 分渠道次日留存率柱状图
-- 🕒 24小时活跃时段分布柱状图
-- 💰 ARPU 与 DAU 组合图
+## 📊 可视化图表预览
 
-## 🗂️ 项目结构
+### 1. ARPU 变化趋势
+![ARPU变化趋势](images/ARPU变化趋势.png)
 
+### 2. DAU 趋势图
+![DAU趋势图](images/DAU趋势图.png)
 
+### 3. 等级-付费分析图
+![等级付费分析图](images/等级付费分析图.png)
 
-1. **Clone 仓库**
-   git clone https://github.com/Kyrie0853/Game-Operations-Data-Analysis.git
+### 4. 分渠道次日留存对比
+![分渠道次日留存对比](images/分渠道次日留存对比.png)
 
-   
-2.**导入 SQL 脚本**
+### 5. 用户活跃时段分布
+![用户活跃时段分布](images/用户活跃时段分布.png)
 
-打开 MySQL 客户端（推荐 DataGrip）
-
-依次执行 sql/01_create_tables.sql → sql/02_insert_data.sql → sql/03_analysis_queries.sql 中的查询
-
-注意：数据生成脚本包含随机函数，每次执行结果会略有不同，符合真实业务分布即可。
-
-3.**导出数据到 Excel 进行可视化**
-
-将 03_analysis_queries.sql 中的关键查询结果导出为 CSV
-
-在 Excel 中通过数据透视表和图表功能制作可视化报告（参考 reports/ 中的 PDF）
 **📬 联系我**
 邮箱：553043978@QQ.COM
